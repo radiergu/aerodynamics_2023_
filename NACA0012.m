@@ -22,7 +22,7 @@ figure,
 subplot(1,2,1), hold all
 plot(complex(0),'k*') % this is (0,0)
 plot(complex(Zeta_origin),'bo') % this is the center of the circle 
-plot(Zeta_circ,'m')
+plot(Zeta_circ,'b')
 hold on
 plot(complex(reverse_joukowski(naca_mapping(c, tc),a)),'r')
 axis equal tight, axis([-1.5*R,1.5*R,-1.5*R,1.5*R]) 
@@ -30,7 +30,7 @@ grid on, grid minor
 xlabel('\eta'), ylabel('\xi')
 %
 subplot(1,2,2), hold all
-plot(joukowski_mapping(Zeta_circ,a),'m')
+plot(joukowski_mapping(Zeta_circ,a),'b')
 hold on
 plot(naca_mapping(c, tc),'r')
 view(2), axis equal tight, axis([-0.75*c,0.75*c,-0.75*c,0.75*c]) 
