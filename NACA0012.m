@@ -20,7 +20,7 @@ Zeta_circ = R*exp(1i*linspace(0,2*pi,200)) + Zeta_origin;
 
 
 %%
-alpha = 5; % AoA in degrees
+alpha = 0; % AoA in degrees
 
 Re = 2e4;
 Uinf = Re .* 1.56e-5 / c;
@@ -30,14 +30,40 @@ Gamma = -4 .* pi .* R .* Uinf .* sin(alpha);
 
 %% Flow Field
 
-[eta, xi] = meshgrid(linspace(-1,1));
+n = 200
+bound = 2*R;
+[eta, xi] = meshgrid(linspace(-bound,bound,n), linspace(bound,-bound,n));
 
 zeta = eta + 1i .* xi;
 
-w = flow_field_gamma(alpha, Uinf, a, Gamma, zeta);
+
+w = flow_field_gamma(alpha, Uinf, a, 0, zeta, Zeta_origin);
+
+psi = imag(w);
+
+% figure
+% h = pcolor(eta,xi,psi);
+% colormap hot;
+% set(h, 'EdgeColor', 'none');
+
+psi_p = sort(psi(psi>0));
+
+nlevels = 4;
+
+levels = imag(flow_field_gamma(alpha, Uinf, a, 0, 1i.*linspace(0,bound,nlevels), Zeta_origin));
+
+% levels = logspace(log(psi_p(1,1)),log(psi_p(end,1)),nlevels);
+levels = sort(cat(2,-levels(2:end),levels))
+
 
 figure
-plot(complex(zeta), imag(w),'.k')
+contour(eta,xi,psi,levels)
+% hold on
+% plot(Zeta_circ,'b')
+axis square
+
+figure 
+mesh(eta,xi,psi)
 
 
 
