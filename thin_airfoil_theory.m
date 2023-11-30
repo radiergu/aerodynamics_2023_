@@ -5,7 +5,7 @@ close all;
 %% generate airfoil
 
 c = 1; % Chord length
-tc = 3./100; % Thickness to Chord Rati
+tc = 9./100; % Thickness to Chord Rati
 
 z = camber_plate(c, tc, 'yes');
 
