@@ -20,12 +20,13 @@ Zeta_circ = R*exp(1i*linspace(0,2*pi,200)) + Zeta_origin;
 
 
 %% Flow Field
-alpha = 0; % AoA in degrees
+alpha = 5; % AoA in degrees
+alpha = deg2rad(alpha);
 
 Re = 2e4;
 Uinf = Re .* 1.56e-5 / c;
+cl = 2*pi*sin(alpha)*R/a
 
-alpha = deg2rad(alpha);
 Gamma = -4 .* pi .* R .* Uinf .* sin(alpha); % alpha
 
 
@@ -36,46 +37,58 @@ bound = 3*R;
 zeta = eta + 1i .* xi;
 
 
-w = flow_field_gamma(alpha, Uinf, a, Gamma, zeta, Zeta_origin);
+w = flow_field_gamma(alpha, Uinf, R, Gamma, zeta, Zeta_origin);
 
 psi = imag(w);
 
 % figure
 % h = pcolor(eta,xi,psi);
-% colormap hot;
+% %colormap hot;
 % set(h, 'EdgeColor', 'none');
+% 
+% 
+% figure 
+% mesh(eta,xi,psi)
+% axis square
 
-psi_p = sort(psi(psi>0));
 
 nlevels = 6;
 
-levels = imag(flow_field_gamma(alpha, Uinf, a, 0, 1i.*linspace(0,bound,nlevels), Zeta_origin));
+levels = imag(flow_field_gamma(alpha, Uinf, R, Gamma, -bound + 1i.*linspace(0,bound,nlevels), Zeta_origin));
 
 if ~ismember(0,levels)
     levels = cat(2,0,levels);
 end
 
-% levels = logspace(log(psi_p(1,1)),log(psi_p(end,1)),nlevels);
 levels = sort(cat(2,-levels(2:end),levels));
 
-
 figure
-plot(complex(Zeta_circ),'k')
+fill(real(Zeta_circ),imag(Zeta_circ),'b','LineStyle','none')
 hold on
-contour(eta,xi,psi,levels)
-% hold on
-% plot(Zeta_circ,'b')
+contour(eta,xi,psi,levels,'k-')
+hold on
+plot(complex(Zeta_origin),'kx')
 axis square
 grid on, grid minor
+savefig('FlowContourJouk.fig')
 
 %%
 [x, y] = meshgrid(linspace(-1,1,n), linspace(1,-1,n));
 zed = x + 1i.*y;
-t = imag(flow_field_gamma(alpha, Uinf, a, 0,  reverse_joukowski(zed,a), Zeta_origin));
-figure
-h = pcolor(x,y,t);
-axis square
-set(h, 'EdgeColor', 'none');
+
+[zetap, zetam] = reverse_joukowski(zed,a);
+
+wp = flow_field_gamma(alpha, Uinf, a, 0, zetap , Zeta_origin);
+wm = flow_field_gamma(alpha, Uinf, a, 0, zetam , Zeta_origin);
+
+% figure
+% h = pcolor(x,y,t);
+% axis square
+% set(h, 'EdgeColor', 'none');
+% 
+% figure 
+% mesh(x,y,t)
+% axis square
 
 %%
 levels2 = 0;
@@ -85,7 +98,7 @@ hold on
 contour(eta,xi,joukowski_mapping(psi,a))
 
 
-%% Plot
+%% 
 
 figure,
 subplot(1,2,1), hold all
