@@ -15,19 +15,19 @@ a = (c./4) * ( 1 + 2.*tc.*4/(3.*sqrt(3)) )  .* (1 + tc.*4/(3.*sqrt(3)) )^(-2);
 b = a .* tc .* 4/(3.*sqrt(3));
 
 R = a + b;
-Zeta_origin = b;
+Zeta_origin = -b;
 Zeta_circ = R*exp(1i*linspace(0,2*pi,200)) + Zeta_origin;
 
 
 %% Flow Field
-alpha = 5; % AoA in degrees
+alpha = 0; % AoA in degrees
 alpha = deg2rad(alpha);
 
 Re = 2e4;
-Uinf = Re .* 1.56e-5 / c;
+uinf = Re .* 1.56e-5 / c;
 cl = 2*pi*sin(alpha)*R/a
 
-Gamma = -4 .* pi .* R .* Uinf .* sin(alpha); % alpha
+Gamma = -4 .* pi .* R .* uinf .* sin(alpha); % alpha
 
 
 n = 400;
@@ -37,24 +37,13 @@ bound = 3*R;
 zeta = eta + 1i .* xi;
 
 
-w = flow_field_gamma(alpha, Uinf, R, Gamma, zeta, Zeta_origin);
+w = flow_field_gamma(alpha, uinf, R, Gamma, zeta, Zeta_origin);
 
 psi = imag(w);
 
-% figure
-% h = pcolor(eta,xi,psi);
-% %colormap hot;
-% set(h, 'EdgeColor', 'none');
-% 
-% 
-% figure 
-% mesh(eta,xi,psi)
-% axis square
-
-
 nlevels = 6;
 
-levels = imag(flow_field_gamma(alpha, Uinf, R, Gamma, -bound + 1i.*linspace(0,bound,nlevels), Zeta_origin));
+levels = imag(flow_field_gamma(alpha, uinf, R, Gamma, -bound + 1i.*linspace(0,bound,nlevels), Zeta_origin));
 
 if ~ismember(0,levels)
     levels = cat(2,0,levels);
@@ -73,13 +62,57 @@ grid on, grid minor
 savefig('FlowContourJouk.fig')
 
 %%
+narrows = nlevels*3;
+
+[eta2, xi2] = meshgrid(linspace(-bound,bound,narrows), linspace(bound,-bound,narrows));
+
+zeta2 = eta2 + 1i.*xi2;
+
+zeta2(abs(zeta2-Zeta_origin)<=R) = [];
+
+eta2 = real(zeta2);
+xi2 = imag(zeta2);
+
+U_zeta = velocity_field_gamma(alpha, uinf, R, Gamma, zeta2, Zeta_origin);
+u_zeta = real(U_zeta);
+v_zeta = -imag(U_zeta);
+
+figure
+fill(real(Zeta_circ),imag(Zeta_circ),'b','LineStyle','none')
+hold on
+plot(complex(Zeta_origin),'kx')
+hold on
+quiver(eta2,xi2,u_zeta,v_zeta)
+axis square
+grid on, grid minor
+savefig('FlowArrowsJouk.fig')
+
+%%
 [x, y] = meshgrid(linspace(-1,1,n), linspace(1,-1,n));
 zed = x + 1i.*y;
 
 [zetap, zetam] = reverse_joukowski(zed,a);
 
-wp = flow_field_gamma(alpha, Uinf, a, 0, zetap , Zeta_origin);
-wm = flow_field_gamma(alpha, Uinf, a, 0, zetam , Zeta_origin);
+wp = flow_field_gamma(alpha, uinf, a, 0, zetap , Zeta_origin);
+wm = flow_field_gamma(alpha, uinf, a, 0, zetam , Zeta_origin);
+
+psip = imag(wp);
+psim = imag(wm);
+
+% figure 
+% mesh(x,y,psip)
+% hold on
+% mesh(x,y,psim)
+% axis square
+% 
+% figure 
+% mesh(x,y,psip+psim)
+% axis square
+
+figure
+plot(complex(zetap),'rx')
+hold on
+plot(complex(zetam),'bx')
 
 % figure
 % h = pcolor(x,y,t);
@@ -90,12 +123,12 @@ wm = flow_field_gamma(alpha, Uinf, a, 0, zetam , Zeta_origin);
 % mesh(x,y,t)
 % axis square
 
-%%
+
 levels2 = 0;
 figure
 plot(joukowski_mapping(Zeta_circ,a),'b')
 hold on
-contour(eta,xi,joukowski_mapping(psi,a))
+contour(x,y,imag(joukowski_mapping(w,a)),'k-')
 
 
 %% 
