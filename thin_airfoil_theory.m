@@ -4,7 +4,7 @@ close all;
 
 %% Open some datas
 
-[numbers, ~] = xlsread("Extracted data.xlsx", 'Feuille 1'); %#ok<XLSRD>
+numbers = readmatrix("Extracted data.xlsx"); 
 if ~isempty(numbers)
     data =  numbers;
 end
