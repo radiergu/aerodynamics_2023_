@@ -1,24 +1,30 @@
-function nacaplotflow(a,R,Zeta0,c,tc,alpha,Re,n,backward)
+function nacaplotflow(a,b,c,tc,alpha,Re,n,backward)
+alpha2 = deg2rad(alpha);
+R = a + b;
+
+Zeta0 = -b;
+if backward
+    Zeta0 = b;
+end
 
 Zeta_circ = R*exp(1i*linspace(0,2*pi,200)) + Zeta0;
 
+Zeta_stag = Zeta0 + R;
+
 if backward
-    % alpha = pi - alpha; % backward facing
+    Zeta_stag = Zeta0 - R;
 end
+
+
 
 uinf = Re .* 1.56e-5 / c;
 
-Gamma = -4 .* pi .* R .* uinf .* sin(alpha);
-
-if backward
-    Gamma = 1i.*2.*pi.*uinf .* (a.*exp(-1i.*alpha) ...
-        - R.^2.*exp(1i.*alpha)./a );
-    Gamma = -4 .* pi .* R .* uinf .* sin(alpha);
-end
+Gamma = Circ_gamma(alpha2, R, uinf, Zeta_stag, Zeta0);
 
 
 
-bound = 3*R;
+
+bound = R*3;
 
 
 [eta, xi] = meshgrid(linspace(-bound,bound,n), linspace(bound,-bound,n));
@@ -33,25 +39,26 @@ xi = imag(zeta);
 x = real(joukowski_mapping(zeta,a));
 y = imag(joukowski_mapping(zeta,a));
 
-w = flow_field_gamma(alpha, uinf, R, Gamma, zeta, Zeta0);
+w = flow_field_gamma(alpha2, uinf, R, Gamma, zeta, Zeta0);
 
 psi = imag(w);
 
-U_zeta = velocity_field_gamma(alpha, uinf, R, Gamma, zeta, Zeta0);
+U_zeta = velocity_field_gamma(alpha2, uinf, R, Gamma, zeta, Zeta0);
 U_real = U_zeta ./(1 - a.^2./(zeta.^2) );
 Umod = abs(U_real);
 
 
 
-nlevels = 6;
+nlevels = 4;
 
-levels = imag(flow_field_gamma(alpha, uinf, R, Gamma, (-10*R + 1i.*linspace(0,1.5*R,nlevels)).*exp(1i.*alpha) , Zeta0));
+levels = imag(flow_field_gamma(alpha2, uinf, R, Gamma, (-10*R + 1i.*linspace(0,1.5*R,nlevels)).*exp(1i.*alpha2) , Zeta0));
 
 if ~ismember(0,levels)
     levels = cat(2,0,levels);
 end
 
 levels = sort(cat(2,-levels(2:end),levels));
+
 
 figure
 hold on
@@ -68,37 +75,38 @@ grid on, grid minor
 set(h1, 'EdgeColor', 'none');
 colorbar
 clim([min(abs(U_zeta),[],"all"), max(abs(U_zeta),[],"all")]);
-name = "FlowContourJouk";
+name = "FlowContourJouk_alpha="+string(alpha);
 if backward
     name = name + "_backward";
 else
     name = name + "_forward";
 end
 savefig(name + '.fig')
-
+saveas(gcf,name,'epsc')
 
 
 figure
 hold on
 colormap turbo;
-%h2 = pcolor(x,y,abs(U_real));
 h2 = pcolor(x,y,Umod);
 contour(x,y,psi,levels,'k-')
 fill(real(joukowski_mapping(Zeta_circ,a)),imag(joukowski_mapping(Zeta_circ,a)),'w','LineStyle','-')
 hold off
 xlim([-0.75 0.75].*c)
 ylim([-4 4].*tc*c)
-
 grid on, grid minor
 set(h2, 'EdgeColor', 'none');
 colorbar
 clim([min(Umod,[],"all"), max(Umod,[],"all")]);
-name2 = "FlowContourFoil";
+name2 = "FlowContourFoil_alpha="+string(alpha);
 if backward
-    % set(gca,'xdir','reverse')
     name2 = name2 + "_backward";
 else
     name2 = name2 + "_forward";
 end
 savefig(name2 + ".fig")
+saveas(gcf,name2,'epsc')
+
+
+
 end
