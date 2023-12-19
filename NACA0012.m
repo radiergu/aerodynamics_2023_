@@ -25,23 +25,49 @@ Zeta0 = -b;
 Zeta_circ = R*exp(1i*linspace(0,2*pi,200)) + Zeta0;
 
 
-figure,
-subplot(1,2,1), hold all
+figure
+tiledlayout(1,2,'Padding', 'none', 'TileSpacing', 'compact')
+nexttile
+hold on
 plot(complex(Zeta0),'bx') % this is the center of the circle 
 plot(complex(Zeta_circ),'b')
 axis equal tight, axis([-1.5*R,1.5*R,-1.5*R,1.5*R]) 
-grid on, grid minor
 xlabel('$\eta$'), ylabel('$\xi$')
-
-subplot(1,2,2), hold all
+grid on, grid minor
+hold off
+nexttile
+hold on
 plot(joukowski_mapping(Zeta_circ,1.*a),'b')
-view(2), axis equal tight, axis([-0.75*c,0.75*c,-0.75*c,0.75*c]) 
+axis equal tight, axis([-0.75*c,0.75*c,-0.75*c,0.75*c]) 
 grid on, grid minor
 xlabel('$x$'), ylabel('$y$')
+hold off
+name1 = "Joukowski_circ-foil_f";
+savefig(name1 + ".fig")
+saveas(gcf,name1,'epsc')
 
+figure
+tiledlayout(1,2,'Padding', 'none', 'TileSpacing', 'compact')
+nexttile
+hold on
+plot(complex(-Zeta0),'bx') % this is the center of the circle 
+plot(complex(Zeta_circ-2.*Zeta0),'b')
+axis equal tight, axis([-1.5*R,1.5*R,-1.5*R,1.5*R]) 
+xlabel('$\eta$'), ylabel('$\xi$')
+grid on, grid minor
+hold off
+nexttile
+hold on
+plot(joukowski_mapping(Zeta_circ-2.*Zeta0,1.*a),'b')
+axis equal tight, axis([-0.75*c,0.75*c,-0.75*c,0.75*c]) 
+grid on, grid minor
+xlabel('$x$'), ylabel('$y$')
+hold off
+name2 = "Joukowski_circ-foil_b";
+savefig(name2 + ".fig")
+saveas(gcf,name2,'epsc')
 
-
-%% Flow Field
+%% Velocity field plots
 
 alpha = 7; % AoA in degrees
 
