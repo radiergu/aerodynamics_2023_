@@ -1,5 +1,5 @@
 clc;
-clear;
+clear all;
 close all;
 %%
 set(0,'defaultAxesTickLabelInterpreter','latex');
@@ -10,7 +10,7 @@ set(0,'DefaultLineLineWidth',1.5);
 %% Airfoil Characteristics
 
 c = 1; % Chord length
-tc = 12./100; % Thickness to Chord Ratio
+tc = 0.12; % Thickness to Chord Ratio
 
 %% Joukowski circle 
 
@@ -53,6 +53,7 @@ n = 500;
 
 nacaplotflow(a,b,c,tc,alpha,Re,n,false)
 nacaplotflow(a,b,c,tc,alpha,Re,n,true)
+
 %%
 
 Zeta0_f = -b;
