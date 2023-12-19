@@ -2,8 +2,8 @@ clc;
 clear;
 close all;
 %%
-set(0, 'defaultAxesTickLabelInterpreter','latex');
-set(0, 'defaultLegendInterpreter','latex');
+set(0,'defaultAxesTickLabelInterpreter','latex');
+set(0,'defaultLegendInterpreter','latex');
 set(0,'defaulttextinterpreter','latex');  
 set(0,'defaultAxesFontSize',20)
 set(0,'DefaultLineLineWidth',1.5);
@@ -43,25 +43,32 @@ xlabel('$x$'), ylabel('$y$')
 
 %% Flow Field
 
-alpha = 7; % AoA in degrees
+alpha = 15; % AoA in degrees
 alpha = deg2rad(alpha);
 
 backward = true;
 
-if backward
-    alpha = pi - alpha; % backward facing
-end
-
-Re = 2e4;
+Re = 5*2e4;
 uinf = Re .* 1.56e-5 / c;
 
 Gamma = -4 .* pi .* R .* uinf .* sin(alpha); % alpha
 
 n = 500;
 
-nacaplotflow(a,R,Zeta_origin,c,alpha,Re,n,true)
-nacaplotflow(a,R,Zeta_origin,c,alpha,Re,n,false)
 
+nacaplotflow(a,R,Zeta_origin,c,tc,alpha,Re,n,false)
+% nacaplotflow(a,R,Zeta_origin,c,tc,alpha,Re,n,true)
 %%
 
-
+load('naca_alpha-cl.mat');
+alphas = linspace(0,10,50);
+figure
+hold on
+plot(alpha_nforward, cl_nforward,'ob','DisplayName','Exp. NACA0012')
+plot(alpha_nreverse, cl_nreverse,'^k','DisplayName','Exp. Reversed')
+plot(alphas,lift_coeff_potential_flow(deg2rad(alphas),tc),'-r','DisplayName','potential flow theory')
+hold off
+grid on, grid minor
+xlabel('Aangle of Attack $\alpha[^\circ]$'), ylabel('Coefficient of lift $C_l$')
+legend('Location','southeast')
+savefig("LiftCoeff_potentialFlow.fig")
